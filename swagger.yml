@@ -1,0 +1,672 @@
+openapi: 3.0.0
+info:
+  title: "Public API Docs"
+  description: "Clerk Public API"
+  version: "1.0"
+  contact: {}
+paths:
+  /public/messages:
+    get:
+      operationId: PublicMessagesController_findMessages
+      summary: "Find messages"
+      description: "Find messages for the active team"
+      parameters:
+        - name: inboxIds
+          in: query
+          description: "The IDs of the inboxes to filter messages by. If not provided, all inboxes will be included"
+          required: false
+          schema:
+            type: array
+            items:
+              type: string
+        - name: start
+          in: query
+          description: "Only messages after this date until the end date or now"
+          required: false
+          schema:
+            type: string
+            format: date-time
+        - name: end
+          in: query
+          description: "Only messages up to this date"
+          required: false
+          schema:
+            type: string
+            format: date-time
+        - name: limit
+          in: query
+          description: "Number of items to return (max 50)"
+          required: false
+          example: 10
+          schema:
+            type: number
+        - name: page
+          in: query
+          description: "Page number"
+          required: false
+          example: 1
+          schema:
+            type: number
+      responses:
+        '200':
+          $ref: "#/components/responses/GetPaginatedMessages"
+        '400':
+          description: "Invalid request body"
+        '401':
+          description: "Unauthorized request"
+        '403':
+          description: "You do not have permission to access this resource"
+        '404':
+          description: "Resource not found"
+        '422':
+          description: "Invalid request parameters"
+        '429':
+          description: "Too many requests for this resource"
+        '500':
+          description: "Internal server error"
+      tags:
+        - Public
+      security:
+        - api_key: []
+    post:
+      operationId: PublicMessagesController_sendMessage
+      summary: "Send a message"
+      description: "Send a message to a contact"
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SendMessageRequest"
+      responses:
+        '201':
+          $ref: "#/components/responses/MessageCreated"
+        '400':
+          description: "Invalid request body"
+        '401':
+          description: "Unauthorized request"
+        '403':
+          description: "You do not have permission to access this resource"
+        '404':
+          description: "Resource not found"
+        '422':
+          description: "Invalid request parameters"
+        '429':
+          description: "Too many requests for this resource"
+        '500':
+          description: "Internal server error"
+      tags:
+        - Public
+      security:
+        - api_key: []
+  /public/contacts:
+    post:
+      operationId: PublicContactsController_create
+      summary: "Create a contact"
+      description: "Create a contact for the active team"
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateContactRequest"
+      responses:
+        '201':
+          $ref: "#/components/responses/ContactCreated"
+        '400':
+          description: "Invalid request body"
+        '401':
+          description: "Unauthorized request"
+        '403':
+          description: "You do not have permission to access this resource"
+        '404':
+          description: "Resource not found"
+        '422':
+          description: "Invalid request parameters"
+        '429':
+          description: "Too many requests for this resource"
+        '500':
+          description: "Internal server error"
+      tags:
+        - Public
+      security:
+        - api_key: []
+  /public/contacts/{id}:
+    put:
+      operationId: PublicContactsController_update
+      summary: "Update a contact"
+      description: "Update a contact for the active team"
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateContactRequest"
+      responses:
+        '200':
+          $ref: "#/components/responses/ContactUpdated"
+        '400':
+          description: "Invalid request body"
+        '401':
+          description: "Unauthorized request"
+        '403':
+          description: "You do not have permission to access this resource"
+        '404':
+          description: "Resource not found"
+        '422':
+          description: "Invalid request parameters"
+        '429':
+          description: "Too many requests for this resource"
+        '500':
+          description: "Internal server error"
+      tags:
+        - Public
+      security:
+        - api_key: []
+  /public/contacts/batch:
+    post:
+      operationId: PublicContactsController_createBatch
+      summary: "Create multiple contacts"
+      description: "Create multiple contacts for the active team"
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateContactsBatchRequest"
+      responses:
+        '201':
+          $ref: "#/components/responses/ContactBatchCreated"
+        '400':
+          description: "Invalid request body"
+        '401':
+          description: "Unauthorized request"
+        '403':
+          description: "You do not have permission to access this resource"
+        '404':
+          description: "Resource not found"
+        '422':
+          description: "Invalid request parameters"
+        '429':
+          description: "Too many requests for this resource"
+        '500':
+          description: "Internal server error"
+      tags:
+        - Public
+      security:
+        - api_key: []
+servers: []
+tags: []
+components:
+  securitySchemes:
+    api_key:
+      type: apiKey
+      in: header
+      name: apiKey
+
+  ########################################################################
+  # Reusable Responses: Put each response in components/responses with a $ref
+  ########################################################################
+  responses:
+    GetPaginatedMessages:
+      description: "A paginated list of messages"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/PaginatedMessagesResponse"
+
+    MessageCreated:
+      description: "The sent message"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/MessageResponse"
+
+    ContactCreated:
+      description: "The created contact"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ContactResponse"
+
+    ContactUpdated:
+      description: "The updated contact"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ContactResponse"
+
+    ContactBatchCreated:
+      description: "The created contacts"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ContactBatchResponse"
+
+  ########################################################################
+  # Reusable Schemas
+  ########################################################################
+  schemas:
+
+    # Enum schemas for senderType, status, etc.
+    SenderTypeEnum:
+      type: string
+      description: "The type of sender."
+      enum:
+        - ai_pipeline
+        - assistant
+        - user
+        - campaign
+        - campaign_message
+        - workflow
+      example: "user"
+
+    MessageStatusEnum:
+      type: string
+      description: "The status of the message."
+      enum:
+        - sending
+        - scheduled
+        - sent
+        - delivered
+        - failed
+        - read
+      example: "delivered"
+
+    MessageObject:
+      type: object
+      properties:
+        id:
+          type: number
+          description: "The ID of the resource"
+          example: 1
+          readOnly: true
+        body:
+          type: string
+          description: "The message text"
+          example: "Hello, world!"
+        conversationId:
+          type: string
+          description: "The associated Conversation ID"
+          example: "1"
+          readOnly: true
+        userId:
+          type: string
+          description: "The ID of the user who created the resource"
+          example: "1"
+          readOnly: true
+          nullable: true
+        campaignMessageId:
+          type: number
+          nullable: true
+          description: "The ID of the campaign message"
+          example: 1
+        campaignId:
+          type: number
+          nullable: true
+          description: "The associated Campaign ID"
+          example: 1
+          readOnly: true
+        channelId:
+          type: string
+          description: "The associated Channel ID"
+          example: "00000000-0000-0000-0000-000000000000"
+          readOnly: true
+          nullable: true
+        inboxId:
+          type: string
+          description: "The associated Inbox ID"
+          example: "00000000-0000-0000-0000-000000000000"
+          readOnly: true
+          nullable: true
+        inbound:
+          type: boolean
+          description: "Whether the message was received or sent"
+          example: true
+        members:
+          type: array
+          items:
+            type: array
+            description: "The phone numbers of the message participants"
+            example: ["+1415456789"]
+            items:
+              type: string
+        sender:
+          type: string
+          description: "The phone number that the message was sent from"
+          example: "+1415456789"
+        senderType:
+          $ref: "#/components/schemas/SenderTypeEnum"
+        status:
+          $ref: "#/components/schemas/MessageStatusEnum"
+        error:
+          type: string
+          description: "The error message if the message failed to send"
+          nullable: true
+        sentByName:
+          type: string
+          description: "The name of the sender displayed in the UI"
+          example: "Clerk"
+          nullable: true
+        errorCode:
+          type: number
+          description: "The error code if the message failed to send"
+          example: 123
+          nullable: true
+        created:
+          type: string
+          format: date-time
+          description: "The date and time the resource was created"
+          example: "2021-01-01T00:00:00.000Z"
+          readOnly: true
+        updated:
+          type: string
+          format: date-time
+          description: "The date and time the resource was last updated"
+          example: "2021-01-01T00:00:00.000Z"
+          readOnly: true
+        seen:
+          type: boolean
+          description: "Whether the message has been seen"
+          example: true
+        externalId:
+          type: string
+          description: "The external ID of the resource"
+          example: "external-id"
+          nullable: true
+        segments:
+          type: number
+          description: "Number of SMS message segments used by the message"
+          example: 1
+        timestamp:
+          type: string
+          format: date-time
+      required:
+        - id
+        - body
+        - conversationId
+        - inbound
+        - members
+        - sender
+        - senderType
+        - status
+        - created
+        - updated
+        - seen
+        - segments
+        - timestamp
+
+    PaginatedMessagesResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/MessageObject"
+        links:
+          type: object
+          properties:
+            next:
+              type: string
+              description: "The URL for the next page"
+            prev:
+              type: string
+              description: "The URL for the previous page"
+            self:
+              type: string
+              description: "The URL for the current page"
+        total:
+          type: number
+          description: "The total number of messages"
+          example: 1
+      required:
+        - data
+        - total
+
+    InboxProvider:
+      type: string
+      enum:
+        - twilio
+        - bandwidth
+        - msteams
+        - other
+        - non_voip
+        - whatsapp
+        - telnyx
+        - webex
+        - rcs
+
+    SendMessageRequest:
+      type: object
+      properties:
+        sender:
+          type: string
+          description: "The Clerk phone number the message should be sent from"
+          example: "+1415456789"
+        provider:
+          $ref: "#/components/schemas/InboxProvider"
+          description: "The provider to send the message from"
+          example: "whatsapp"
+        mediaUrls:
+          type: array
+          items:
+            type: array
+            description: "The media URLs to send with the message"
+            example: ["https://example.com/image.jpg"]
+            items:
+              type: string
+        recipients:
+          type: array
+          items:
+            type: array
+            description: "The recipients of the message"
+            example: ["+9134567654"]
+            minItems: 1
+            items:
+              type: string
+        body:
+          type: string
+          description: "The message text"
+          example: "Hello, world!"
+        sentByName:
+          type: string
+          description: "The name of the sender displayed in the UI"
+          example: "Clerk"
+      required:
+        - sender
+        - mediaUrls
+        - recipients
+        - body
+
+    MessageResponse:
+      type: object
+      properties:
+        data:
+          $ref: "#/components/schemas/MessageObject"
+      required:
+        - data
+
+    CreateContactRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          description: "The name of the contact"
+          example: "John Doe"
+        phone:
+          type: string
+          description: "The phone number of the contact"
+          example: "+1234567890"
+        email:
+          type: string
+          description: "The email address of the contact"
+          example: "johndoe@example.com"
+        public:
+          type: boolean
+          description: "Whether the contact is public"
+          example: false
+        data:
+          type: object
+          description: "The contact data"
+          example: {}
+      # not strictly required in example, so no "required" block here
+
+    ContactAttributeObject:
+      type: object
+      properties:
+        id:
+          type: string
+        attributeTypeId:
+          type: string
+        value:
+          type: object
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - attributeTypeId
+        - createdAt
+        - updatedAt
+
+    ContactObject:
+      type: object
+      properties:
+        id:
+          type: string
+          description: "The ID of the resource"
+          example: "1"
+          readOnly: true
+        teamId:
+          type: string
+          description: "The ID of the team the resource belongs to"
+          example: "1"
+          readOnly: true
+        createdByUserId:
+          type: string
+          description: "The ID of the user who created the resource"
+          example: "1"
+          readOnly: true
+        name:
+          type: string
+          description: "The name of the contact"
+          example: "John Doe"
+        phone:
+          type: string
+          description: "The phone number of the contact"
+          example: "+1234567890"
+        email:
+          type: string
+          description: "The email address of the contact"
+          example: "johndoe@example.com"
+        externalId:
+          type: string
+          description: "The external ID of the contact"
+          example: "1234"
+        optOut:
+          type: boolean
+          description: "Whether the contact has opted out of messages"
+          example: false
+        avatarURL:
+          type: string
+          description: "The URL of the contact avatar"
+          example: "https://example.com/avatar.jpg"
+        public:
+          type: boolean
+          description: "Whether the contact is public"
+          example: false
+        data:
+          type: object
+          description: "The contact data"
+          example: {}
+        attributes:
+          $ref: "#/components/schemas/ContactAttributeObject"
+          description: "The contact attributes"
+          example: {}
+        created:
+          type: string
+          format: date-time
+          description: "The date and time the resource was created"
+          example: "2021-01-01T00:00:00.000Z"
+          readOnly: true
+        updated:
+          type: string
+          format: date-time
+          description: "The date and time the resource was last updated"
+          example: "2021-01-01T00:00:00.000Z"
+          readOnly: true
+      required:
+        - id
+        - teamId
+        - createdByUserId
+        - name
+        - phone
+        - email
+        - externalId
+        - optOut
+        - avatarURL
+        - public
+        - data
+        - attributes
+        - created
+        - updated
+
+    ContactResponse:
+      type: object
+      properties:
+        data:
+          $ref: "#/components/schemas/ContactObject"
+      required:
+        - data
+
+    UpdateContactRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          description: "The name of the contact"
+          example: "John Doe"
+        email:
+          type: string
+          description: "The email address of the contact"
+          example: "johndoe@example.com"
+        public:
+          type: boolean
+          description: "Whether the contact is public"
+          example: false
+        data:
+          type: object
+          description: "The contact data"
+          example: {}
+
+    CreateContactsBatchRequest:
+      type: object
+      properties:
+        contacts:
+          type: array
+          items:
+            $ref: "#/components/schemas/CreateContactRequest"
+      required:
+        - contacts
+
+    ContactBatchResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/ContactObject"
+      required:
+        - data
